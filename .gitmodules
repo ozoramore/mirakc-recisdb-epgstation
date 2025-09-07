@@ -1,0 +1,9 @@
+[submodule "source/mirakc-recisdb/mirakc"]
+	path = source/mirakc-recisdb/mirakc
+	url = https://github.com/mirakc/mirakc.git
+[submodule "source/mirakc-recisdb/mirakc-arib"]
+	path = source/mirakc-recisdb/mirakc-arib
+	url = https://github.com/mirakc/mirakc-arib.git
+[submodule "source/mirakc-recisdb/recisdb-rs"]
+	path = source/mirakc-recisdb/recisdb-rs
+	url = https://github.com/kazuki0824/recisdb-rs.git

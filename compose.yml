@@ -1,0 +1,65 @@
+services:
+  mirakc:
+    build: ./source/mirakc-recisdb
+    container_name: mirakc
+    init: true
+    restart: always
+    devices:
+      - /dev/bus:/dev/bus # 必須
+      - /dev/px4video0:/dev/px4video0 #plexのチューナーの場合.
+      - /dev/px4video1:/dev/px4video1
+      - /dev/px4video2:/dev/px4video2
+      - /dev/px4video3:/dev/px4video3
+      - /dev/px4video4:/dev/px4video4
+      - /dev/px4video5:/dev/px4video5
+      - /dev/px4video6:/dev/px4video6
+      - /dev/px4video7:/dev/px4video7
+    volumes:
+      - /var/run/pcscd/pcscd.comm:/var/run/pcscd/pcscd.comm
+      - mirakc-epg:/var/lib/mirakc/epg
+      - ./conf/mirakc/config.yml:/etc/mirakc/config.yml
+    environment:
+      TZ: Asia/Tokyo
+      RUST_LOG: info
+
+  mysql:
+    image: mariadb:12
+    volumes:
+      - mysql-db:/var/lib/mysql
+    environment:
+      MYSQL_USER: epgstation
+      MYSQL_PASSWORD: epgstation
+      MYSQL_ROOT_PASSWORD: epgstation
+      MYSQL_DATABASE: epgstation
+      TZ: "Asia/Tokyo"
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --performance-schema=false --expire_logs_days=1
+    restart: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  epgstation:
+    build: ./source/epgstation
+    container_name: epgstation
+    volumes:
+      - ./conf/epgstation:/app/config
+      - epgstation-logs:/app/logs
+      - epgstation-data:/app/data
+      - ./recorded:/app/recorded # 録画保存用のディレクトリ.
+    environment:
+      TZ: "Asia/Tokyo"
+    depends_on:
+      - mirakc
+      - mysql
+    restart: always
+
+volumes:
+  mysql-db:
+    driver: local
+  mirakc-epg:
+    driver: local
+  epgstation-logs:
+    driver: local
+  epgstation-data:
+    driver: local
